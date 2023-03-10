@@ -5,20 +5,20 @@ use std::env;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ExternalUrls {
-    spotify: String
+    spotify: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Artist {
     name: String,
-    external_urls: ExternalUrls
+    external_urls: ExternalUrls,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Album {
     name: String,
     artists: Vec<Artist>,
-    external_urls: ExternalUrls
+    external_urls: ExternalUrls,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -27,20 +27,20 @@ struct Track {
     href: String,
     popularity: u32,
     album: Album,
-    external_urls: ExternalUrls
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct APIResponse {
-    tracts: Items<Track>
+    external_urls: ExternalUrls,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Items<T> {
-    items: Vec<T>
+    items: Vec<T>,
 }
 
-fn print_tracts(tracks: vec<&Track>) {
+#[derive(Serialize, Deserialize, Debug)]
+struct APIResponse {
+    tracks: Items<Track>,
+}
+
+fn print_tracks(tracks: Vec<&Track>) {
     for track in tracks {
         println!("{}", track.name);
         println!("{}", track.album.name);
@@ -54,7 +54,7 @@ fn print_tracts(tracks: vec<&Track>) {
                 .collect::<String>()
         );
         println!("{}", track.external_urls.spotify);
-        println!("------------------------")
+        println!("---------")
     }
 }
 
@@ -76,17 +76,18 @@ async fn main() {
         .send()
         .await
         .unwrap();
-
     match response.status() {
         reqwest::StatusCode::OK => {
             match response.json::<APIResponse>().await {
-                Ok(parsed) => print_tracts(parsed.tracks.items.iter().collect()),
-                Err(_) => println!("the response didn't match the struct / shape")
-            }
+                Ok(parsed) => print_tracks(parsed.tracks.items.iter().collect()),
+                Err(_) => println!("Hm, the response didn't match the shape we expected."),
+            };
         }
         reqwest::StatusCode::UNAUTHORIZED => {
-            println!("Need to grab a new token")
+            println!("Need to grab a new token");
         }
-    }
-
+        other => {
+            panic!("Uh oh! Something unexpected happened: {:?}", other);
+        }
+    };
 }

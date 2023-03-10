@@ -63,5 +63,16 @@ async fn main() {
         .await
         .unwrap();
 
-    
+    match response.status() {
+        reqwest::StatusCode::OK => {
+            match response.json::<APIResponse>().await {
+                Ok(parsed) => print_tracts(parsed.tracks.items.iter().collect()),
+                Err(_) => println!("the response didn't match the struct / shape")
+            }
+        }
+        reqwest::StatusCode::UNAUTHORIZED => {
+            println!("Need to grab a new token")
+        }
+    }
+
 }

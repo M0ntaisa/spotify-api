@@ -50,6 +50,7 @@ async fn main() {
     let search_query = &args[1];
     let auth_token = &args[2];
     let url = format!(
-        
-    )
+        "https://api.spotify.com/v1/search?q={query}&type=track,artist",
+        query = search_query
+    );
 }

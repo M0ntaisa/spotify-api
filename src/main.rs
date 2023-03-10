@@ -1,6 +1,6 @@
 use reqwest;
 use reqwest::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::env;
 
 #[derive(Serialize, Deserialize, Debug)]
